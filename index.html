@@ -5,27 +5,51 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>My PDF Viewer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script> -->
+    <!-- <script type="text/javascript" src="pdf.js"></script> -->
+    <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
     <div class="mainContainer">
-      <div class="topBar">
-        <title>Word</title>
-      </div>
-      <div class="body">
-        <input type="file" id="file-selector" multiple / >
+      <div class="mainContainerContents">
+        <div class="titleBar">
+          <div><h1>Search for a Word</h1></div>
+        </div>
+        <div class="inputsContainer">
+          <form id="inputsForm">
+            <div class="fileSelectorContainer">
+              <label><u>Upload a pdf file</u></label>
+              <input type="file" id="fileSelector" multiple />
+            </div>
+            <br />
+            <div class="wordInputContainer">
+              <label><u>Enter a word to search for</u></label>
+              <input type="field" id="wordInput" />
+            </div>
+          </form>
+          <button onclick="searchFunc()" id="searchButton">
+            Search the PDF
+          </button>
+        </div>
+        <!-- <div id="pdf-text">
+            <div id="loading-info">
+              Extracting text ... hold tight !
+            </div>
+          </div>
+        </div> -->
       </div>
     </div>
+    <!-- <script>
+      const fileSelector = document.getElementById("file-selector");
+      fileSelector.addEventListener("change", (event) => {
+        const fileList = event.target.files;
+        console.log(fileList);
+      });
+    </script> -->
+    <script src="/pdfjs/build/pdf.js"></script>
+    <script src="main.js"></script>
   </body>
-
-  <script>
-    const fileSelector = document.getElementById("file-selector");
-    fileSelector.addEventListener("change", (event) => {
-      const fileList = event.target.files;
-      console.log(fileList);
-    });
-  </script>
 
   <!-- PDF Viewer -->
   <!-- <div id="my_pdf_viewer">
