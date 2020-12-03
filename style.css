@@ -1,0 +1,723 @@
+body {
+  background-color: rgb(245, 222, 179);
+  color: black;
+}
+input[type="button"] {
+  border-radius: 10px;
+  padding: 2px 10px;
+  font-family: "MedievalSharp", cursive;
+  font-size: 14px;
+  cursor: pointer;
+}
+button {
+  cursor: pointer;
+}
+table {
+  background-color: white;
+}
+select {
+  font-family: "MedievalSharp", cursive;
+  cursor: pointer;
+}
+/* .dark-mode {
+  background-color: black !important;
+  color: white !important;
+} */
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+  justify-content: center;
+}
+.mainHomeContainer {
+  margin-bottom: 7.5px;
+}
+.main2ndRowButtons {
+  margin-bottom: 7.5px;
+  display: flex;
+  align-items: center;
+  margin-left: 2.5px;
+  margin-right: 2.5px;
+}
+.infoBox {
+  width: 30%;
+  background-color: white;
+  border: 0.5px solid rgb(180, 180, 180);
+  border-radius: 5px;
+  font-family: "MedievalSharp", cursive;
+  text-align: center;
+  padding: 5px 10px;
+  margin-top: 30px;
+  margin-right: 0;
+  display: flex;
+  justify-content: center;
+}
+#spellDescDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.easterEggInfo {
+  font-size: 10px;
+  color: grey;
+  font-family: "Bad Script", cursive;
+}
+/* SPELLS */
+#mainSpellContainer {
+  display: none;
+  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+.mainSpellButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.spellSearchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 0.5px solid lightgrey;
+  background-color: white;
+  padding: 2px;
+  border-radius: 5px;
+}
+#spellSearchInput {
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  border-bottom: 1px solid lightgrey;
+  font-family: "Bad Script", cursive;
+  margin: 0px 3px;
+}
+#searchedSpell {
+  text-align: center;
+}
+.notFoundResponse {
+  background-color: white;
+  text-align: center;
+  border: 0.5px solid rgb(180, 180, 180);
+  border-radius: 5px;
+  font-family: "MedievalSharp", cursive;
+  width: 40%;
+  height: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px;
+}
+.donkay {
+  -webkit-animation: rotation 2s infinite linear;
+  animation: rotation 2s infinite linear;
+  margin-top: 25vh;
+}
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+/* MODAL BOX */
+.modalBoxContainer {
+  display: none;
+  position: fixed;
+  overflow: scroll;
+  padding-left: 5%;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modalBoxContent {
+  position: relative;
+  overflow: scroll;
+  top: 10px;
+  margin-bottom: 10px;
+  width: 90vw;
+}
+#modalSpellTable {
+  width: 90vw;
+  overflow: scroll;
+  background-color: white;
+  /* border: 2px solid grey; */
+  border-radius: 5px;
+  height: auto;
+  align-self: center;
+  border-collapse: collapse;
+}
+/* .modalSpellTableDark {
+  width: 90vw;
+  background-color: black !important;
+  border: 1px solid white !important;
+  height: auto;
+  align-self: center;
+} */
+#modalSpellTable td {
+  text-align: center;
+}
+.modalTopRow {
+  height: 50px;
+}
+.modalTD {
+  border-top: 0.5px solid lightgrey;
+}
+.modalTD:first-child {
+  border-right: 0.5px solid lightgrey;
+}
+#modalSpellTable th {
+  text-align: center;
+  width: 20%;
+  height: 30px;
+  font-size: 20px;
+}
+.modalLeft {
+  font-weight: bold;
+  font-family: "MedievalSharp", cursive;
+}
+.modalRight {
+  font-family: "Bad Script", cursive;
+  padding: 10px;
+}
+#modalSpellNameID {
+  font-family: "MedievalSharp", cursive;
+  text-decoration: underline;
+}
+.changeButtons {
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  color: white;
+  background-color: black;
+  cursor: pointer;
+}
+.closeSpellModal {
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  color: white;
+  background-color: black;
+  cursor: pointer;
+}
+
+/* SPELL TABLE */
+.spellTable {
+  border-collapse: collapse;
+  text-align: center;
+  border-bottom: 0.5px solid rgb(180, 180, 180);
+  border: 0.5px solid rgb(180, 180, 180);
+}
+.spellTable:first-of-type th {
+  height: 50px;
+  border-top: 0.5px solid rgb(180, 180, 180);
+  border-bottom: 0.5px solid rgb(180, 180, 180);
+}
+.spellTable:first-of-type th:first-child {
+  border-left: 0.5px solid rgb(180, 180, 180);
+}
+.spellTable:first-of-type th:not(:first-child) {
+  border-right: 0.5px solid rgb(180, 180, 180);
+}
+.spellTable td {
+  padding: 5px;
+}
+.spellTable td:first-child {
+  border-left: 0.5px solid rgb(180, 180, 180);
+}
+.spellTable td:not(:first-child) {
+  border-right: 0.5px solid rgb(180, 180, 180);
+}
+.spellTable tr {
+  border-bottom: 0.5px solid rgb(180, 180, 180);
+}
+.spellTableRow {
+  height: 40px;
+  border: 1px solid lightgrey;
+  background-color: lightgrey;
+}
+.headerSpellName {
+  font-family: "MedievalSharp", cursive;
+  font-size: 20px;
+  border-bottom: 1px solid black;
+}
+.spellTableButton {
+  border-radius: 10px;
+  padding: 2px 10px;
+}
+.infoHeader {
+  padding: 5px;
+}
+#allSpellsTableContainer {
+  display: flex;
+  justify-content: center;
+}
+.spellTableLabel {
+  font-family: "MedievalSharp", cursive;
+}
+.spellTableContent {
+  font-family: "Bad Script", cursive;
+}
+select:required:invalid {
+  color: #666;
+}
+.placeholderOption {
+  display: none;
+}
+option {
+  color: #000;
+}
+#savedSpellsOuterTable {
+  border: 0.5px solid rgb(180, 180, 180);
+  border-radius: 5px;
+}
+.footerRowOuter {
+  padding: 10px;
+}
+
+/* NEW CHARACTER FORM */
+#mainCharacterContainer {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.mainCharacterButtons {
+  display: flex;
+  justify-content: center;
+}
+.mainCharButton {
+  margin: 0px 2px;
+}
+#newCharacterForm {
+  display: flex;
+  width: 80vw;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 2px solid maroon;
+  background-color: white;
+  margin: 10px;
+}
+.inputDiv {
+  width: 100%;
+  order: 1;
+}
+textarea {
+  padding: 5px;
+}
+.characterInputFieldRow1 {
+  width: 25%;
+  height: 5vh;
+  border-bottom: 0;
+  border-right: 0;
+  border-left: 0.5px solid lightgrey;
+  border-top: 0.5px solid lightgrey;
+  resize: none;
+  font-family: "MedievalSharp", cursive;
+}
+.characterInputFieldRow1:last-child {
+  border-right: 0.5px solid lightgrey;
+}
+.characterInputFieldRow2 {
+  width: 50%;
+  height: 15vh;
+  resize: none;
+  border-top: 0.5px solid lightgrey;
+  border-bottom: 0.5px solid lightgrey;
+  border-left: 0.5px solid lightgrey;
+  border-right: 0;
+  font-family: "MedievalSharp", cursive;
+}
+.characterInputFieldRow2:last-child {
+  border-right: 0.5px solid lightgrey;
+}
+.selectDiv {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 30px;
+  width: 100%;
+  border-bottom: 0.5px solid lightgrey;
+  order: 2;
+  font-family: "MedievalSharp", cursive;
+}
+.abilitiesMainDiv {
+  width: 100%;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  border-bottom: 0.5px solid lightgrey;
+  order: 3;
+}
+.abilitiesDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 60%;
+  margin: 0;
+  padding: 10px 0px;
+}
+.abilitiesTitleRow {
+  display: flex;
+  font-family: "MedievalSharp", cursive;
+}
+.abilityName {
+  font-family: "MedievalSharp", cursive;
+}
+.abilitiesTitle {
+  width: 50%;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: underline;
+  font-family: "MedievalSharp", cursive;
+}
+.ablityInput {
+  width: 40px;
+  text-align: center;
+  font-family: "Bad Script", cursive;
+}
+.abilityPlus {
+  /* width: 40px; */
+  padding: 0px 7px;
+  text-align: center;
+  font-family: "Bad Script", cursive;
+}
+.ablityRaceModifier {
+  width: 40px;
+  overflow: hidden;
+  text-align: center;
+  font-family: "Bad Script", cursive;
+}
+#diceRollerTable {
+  text-align: center;
+}
+.diceRoller4d6Header {
+  font-weight: bold;
+  text-decoration: underline;
+  font-family: "MedievalSharp", cursive;
+}
+.diceRoller4d6Values {
+  padding-right: 10px;
+  font-size: 12px;
+  font-family: "Bad Script", cursive;
+}
+.diceRoller4d6HighestValue {
+  font-family: "Bad Script", cursive;
+  font-size: 14px;
+}
+.checkboxesDiv {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  padding-top: 10px;
+  order: 4;
+}
+.characterCheckboxForm {
+  /* margin: 0px 10px; */
+  order: 5;
+  font-family: "MedievalSharp", cursive;
+}
+
+.submitButtonDiv {
+  order: 6;
+  padding: 10px;
+}
+
+/* SAVED CHARACTER */
+.mainDescDiv {
+  height: 0;
+  width: 90vw;
+  overflow: hidden;
+  visibility: hidden;
+  display: flex;
+  justify-content: flex-start;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.4s ease-in-out;
+  transition: all 0.4s ease-in-out;
+  /* width: 90vw; */
+}
+.showMainDescDiv {
+  width: 90vw;
+  /* height: 400px; */
+  height: 75vh;
+  overflow: scroll;
+  visibility: visible;
+  display: flex;
+  justify-content: flex-start;
+  opacity: 1;
+  margin: 0 auto;
+  transition: all 0.4s ease-in-out;
+}
+.savedCharDiv {
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.savedCharEntry {
+  display: flex;
+  align-items: center;
+}
+.savedCharEntryName {
+  font-weight: bold;
+  font-family: "MedievalSharp", cursive;
+}
+.arrowRight {
+  width: 0;
+  height: 0;
+  border-top: 7.5px solid transparent;
+  border-bottom: 7.5px solid transparent;
+  border-left: 10px solid black;
+  transition: 300ms linear all;
+  margin: 5px;
+}
+.arrowDown {
+  -ms-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+  transition: 300ms linear all;
+}
+/* INNER DIV */
+.descDiv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+/* FIRST ROW DIV */
+.firstRowDiv {
+  width: 99%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  background: white;
+}
+.firstRowItem {
+  width: 25%;
+  height: 7vh;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.firstRowTitle {
+  font-weight: bold;
+  text-decoration: underline;
+  font-family: "MedievalSharp", cursive;
+}
+.firstRowContent {
+  font-family: "Bad Script", cursive;
+}
+/* SECOND ROW DIV */
+.secondRowDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+/* FIRST COL */
+.firstColDiv {
+  min-width: 7%;
+  display: flex;
+  flex-direction: column;
+}
+/* abl */
+.savedCharAbilitiesColumn {
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
+}
+.savedCharAbilityDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 3px;
+  margin: 8px 0px;
+  background: white;
+}
+.savedCharAbilityMod {
+  font-size: 14px;
+  font-family: "MedievalSharp", cursive;
+}
+.savedCharAbilityScore {
+  font-size: 18px;
+  font-weight: bold;
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 3px 5px;
+  font-family: "MedievalSharp", cursive;
+}
+.savedCharAbilityName {
+  margin-top: 2px;
+  font-size: 16px;
+  font-family: "MedievalSharp", cursive;
+}
+/* SECOND COL */
+.secondColDiv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+/* B & P */
+/* background */
+.savedCharBackAndPersDiv {
+  display: flex;
+  height: 35%;
+  margin: 5px;
+  margin-top: 10px;
+  justify-content: space-around;
+}
+.savedCharBackDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  width: 50%;
+  background: white;
+}
+/* personality */
+.savedCharPersDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  margin-left: 10px;
+  padding: 5px;
+  width: 50%;
+  background: white;
+}
+/* IFB */
+.savedCharIFBDiv {
+  display: flex;
+  height: 25%;
+  margin: 5px;
+}
+/* ideals */
+.savedCharIdealsDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  width: 33%;
+  background: white;
+}
+/* flaws */
+.savedCharFlawsDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  width: 33%;
+  margin-left: 5px;
+  background: white;
+}
+.savedCharBondsDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  width: 33%;
+  margin-left: 5px;
+  background: white;
+}
+/* proficiencies and skills */
+.savedCharProfAndSkills {
+  display: flex;
+  margin: 5px;
+}
+.savedCharProfDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  width: 50%;
+  text-align: center;
+  background: white;
+}
+.savedCharSkillsDiv {
+  border: 0.5px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  margin-left: 5px;
+  width: 50%;
+  text-align: center;
+  background: white;
+}
+.savedCharTitle {
+  font-weight: bold;
+  text-decoration: underline;
+  text-align: center;
+  font-family: "MedievalSharp", cursive;
+}
+.savedCharContent {
+  font-family: "Bad Script", cursive;
+}
+/* spells */
+.spellRowDiv {
+  display: flex;
+  justify-content: space-around;
+  padding: 5px;
+  width: 98%;
+  margin: 5px 0px;
+  align-self: center;
+  justify-self: center;
+  border: 0.5px solid black;
+  border-radius: 5px;
+  background-color: white;
+}
+.savedCharSpellsTitle {
+  font-family: "MedievalSharp", cursive;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.savedCharSpellsContent {
+  font-family: "Bad Script", cursive;
+}
+/* DICE ROLLER */
+#mainRollerContainer {
+  display: "none";
+  border-collapse: collapse;
+}
+.rollResultRow {
+  border: 1px solid black;
+  border-radius: 5px;
+  font-family: "MedievalSharp", cursive;
+}
+.diceRollHeadRow th {
+  /* border-bottom: 1px solid black; */
+  text-decoration: underline;
+  font-family: "MedievalSharp", cursive;
+}
+#diceRollTable {
+  border: 1px solid black;
+  text-align: center;
+}
+#diceRollTable td:last-child {
+  border: 1px solid lightgrey;
+}
+.diceRollTableRow {
+  height: 30px;
+}
+.rollButton {
+  width: 100%;
+  height: 30px;
+  margin: 0px;
+  border-radius: 5px;
+  font-family: "MedievalSharp", cursive;
+}
+.rollResultBox {
+  border: 1px solid black;
+  border-radius: 5px;
+}
+#diceRollTable {
+  border-radius: 5px;
+  padding: 5px;
+}
