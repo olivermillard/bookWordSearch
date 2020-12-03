@@ -1,6 +1,3 @@
-//var PDF_URL = "/path/to/example.pdf";
-PDFJS.workerSrc = "/pdfjs/build/pdf.worker.js";
-
 function searchFunc() {
   var fileSelector = document.getElementById("fileSelector");
   var searchInput = document.getElementById("wordInput");
