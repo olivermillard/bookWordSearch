@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>My PDF Viewer</title>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script> -->
-    <!-- <script type="text/javascript" src="pdf.js"></script> -->
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -32,6 +31,7 @@
             Search the PDF
           </button>
         </div>
+        <canvas id="pdf-render"></canvas>
         <!-- <div id="pdf-text">
             <div id="loading-info">
               Extracting text ... hold tight !
@@ -40,21 +40,18 @@
         </div> -->
       </div>
     </div>
-    <!-- <script>
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+    <script src="main.js"></script>
+  </body>
+
+  <!-- PDF Viewer -->
+  <!-- <script>
       const fileSelector = document.getElementById("file-selector");
       fileSelector.addEventListener("change", (event) => {
         const fileList = event.target.files;
         console.log(fileList);
       });
     </script> -->
-    <!-- <script src="pdfjs/build/pdf.js"></script> -->
-    <script src="main.js"></script>
-    <!-- <script>
-      PDFJS.workerSrc = "pdfjs/build/pdf.worker.js";
-    </script> -->
-  </body>
-
-  <!-- PDF Viewer -->
   <!-- <div id="my_pdf_viewer">
       <div id="canvas_container">
         <canvas id="pdf_renderer"></canvas>
