@@ -1,22 +1,10 @@
-//Node.js
-// const http = require("http");
-
-// const hostname = "127.0.0.1";
-// const port = 3000;
-
-// const server = http.createServer((req, res) => {
-//   res.statusCode = 200;
-//   res.setHeader("Content-Type", "text/plain");
-//   res.end("Hello, World!\n");
-// });
-
-// server.listen(port, hostname, () => {
-//   console.log(`Server running at http://${hostname}:${port}/`);
-// });
-
+var fileSelector;
+var searchInput;
+var searchMessage;
 function searchFunc() {
-  var fileSelector = document.getElementById("fileSelector");
-  var searchInput = document.getElementById("wordInput");
+  fileSelector = document.getElementById("fileSelector");
+  searchInput = document.getElementById("wordInput");
+  searchMessage = document.getElementById("searchMessage");
   if (fileSelector.value.length != 0 && searchInput.value.length != 0) {
     //check for pdf
     var allowedExtensions = /(\.pdf)$/i;
@@ -28,10 +16,7 @@ function searchFunc() {
     }
     //if pdf
     else {
-      const url = fileSelector.files[0];
-      var fReader = new FileReader();
-      fReader.readAsDataURL(fileSelector.files[0]);
-      fReader.onloadend = function(event) {};
+      getPDF();
     }
   }
   // accounts for no inputs
@@ -54,4 +39,85 @@ function searchFunc() {
       }
     }
   }
+}
+
+var pagesPromises = [];
+var numberOfPages = 0;
+function getPDF() {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "//mozilla.github.io/pdf.js/build/pdf.worker.js";
+  var canvasElement = document.getElementById("canvas");
+  var file = fileSelector.files[0];
+  var fileReader = new FileReader();
+  fileReader.onload = function() {
+    var typedarray = new Uint8Array(this.result);
+    var loadingTask = pdfjsLib.getDocument(typedarray);
+    pdfjsLib.getDocument(typedarray);
+    loadingTask.promise.then((pdf) => {
+      console.log("the pdf has ", pdf.numPages, "page(s).");
+      var pdfDocument = pdf;
+      pdf.getPage(pdf.numPages).then(function(page) {
+        numberOfPages = pdf.numPages;
+        for (var i = 0; i < pdf.numPages; i++) {
+          (function(pageNumber) {
+            pagesPromises.push(getPageText(pageNumber, pdfDocument));
+          })(i + 1);
+        }
+        var viewport = page.getViewport(2.0);
+        var canvas = document.querySelector("#canvas");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        page.render({
+          canvasContext: canvas.getContext("2d"),
+          viewport: viewport,
+        });
+      });
+    });
+  };
+  fileReader.readAsArrayBuffer(file);
+}
+var finalString = "";
+var pageCounter = 0;
+function getPageText(pageNum, PDFDocumentInstance) {
+  finalString = "";
+  return new Promise(function(resolve, reject) {
+    PDFDocumentInstance.getPage(pageNum).then(function(pdfPage) {
+      pdfPage.getTextContent().then(function(textContent) {
+        var textItems = textContent.items;
+        for (var i = 0; i < textItems.length; i++) {
+          var item = textItems[i];
+          finalString += item.str + " ";
+        }
+        //pdf.getPage(pdf.numPages).then(function(page)
+        resolve(finalString);
+        pageCounter += 1;
+        searchMessage.textContent =
+          "Processing page number " +
+          pageCounter +
+          " of " +
+          numberOfPages +
+          " total pages";
+        console.log(pageCounter, numberOfPages);
+        if (pageCounter == numberOfPages) {
+          findWords(finalString);
+        }
+      });
+    });
+  });
+}
+var wordCounter = 0;
+function findWords(finalString) {
+  wordCounter = 0;
+  pageCounter = 0;
+  var rawWord = searchInput.value;
+  var rawWordLowercase = rawWord.toLowerCase();
+  var lowercaseFinalString = finalString.toLowerCase();
+  var word = new RegExp(rawWordLowercase, "g");
+  wordCounter = (lowercaseFinalString.match(word) || []).length;
+  searchMessage.textContent =
+    "The word '" +
+    rawWord +
+    "' appeared " +
+    wordCounter +
+    " number of times in the PDF";
 }
