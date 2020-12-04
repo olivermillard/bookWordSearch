@@ -8,6 +8,12 @@ var pageCounter = 0;
 var pagesPromises = [];
 var numberOfPages = 0;
 var wordCounter = 0;
+var indexArray = [];
+var sentences = [];
+var periodIndices = [];
+var recordedPages = [];
+var dividedByPages = [];
+//
 
 function searchFunc() {
   fileSelector = document.getElementById("fileSelector");
@@ -92,10 +98,13 @@ function getPageText(pageNum, PDFDocumentInstance) {
     PDFDocumentInstance.getPage(pageNum).then(function(pdfPage) {
       pdfPage.getTextContent().then(function(textContent) {
         var textItems = textContent.items;
+        var pageText = "";
         for (var i = 0; i < textItems.length; i++) {
           var item = textItems[i];
           finalString += item.str + " ";
+          pageText += item.str + " ";
         }
+        dividedByPages.push(pageText);
         //pdf.getPage(pdf.numPages).then(function(page)
         resolve(finalString);
         pageCounter += 1;
@@ -114,7 +123,6 @@ function getPageText(pageNum, PDFDocumentInstance) {
   });
 }
 
-var indexArray = [];
 function findWords(finalString) {
   wordCounter = 0;
   pageCounter = 0;
@@ -142,7 +150,8 @@ function getIndicesOf(searchStr, str, caseSensitive) {
     startIndex = index + searchStrLen;
     wordCounter += 1;
   }
-  findSentence(originalStr, indices);
+  getPages(originalSearchStr, indices);
+  findSentence(originalStr, originalSearchStr, indices);
   searchMessage.textContent =
     "The word '" +
     originalSearchStr +
@@ -152,31 +161,55 @@ function getIndicesOf(searchStr, str, caseSensitive) {
   return indices;
 }
 
-var sentences = [];
-var periodIndices = [];
-function findSentence(originalStr, indices) {
+function getPages(originalSearchStr, indices) {
+  recordedPages = [];
+  for (var i = 0; i < dividedByPages.length; i++) {
+    //console.log(dividedByPages[i]);
+    var str = dividedByPages[i].toLowerCase();
+    var searchStr = originalSearchStr.toLowerCase();
+    var searchStrLen = searchStr.length;
+    var startIndex = 0,
+      index,
+      indices = [];
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+      indices.push(index);
+      startIndex = index + searchStrLen;
+      recordedPages.push(i);
+    }
+  }
+  console.log(recordedPages.length);
+}
+
+function findSentence(originalStr, originalSearchStr, indices) {
   sentences = [];
   periodIndices = [];
   for (var i = 0; i < indices.length; i++) {
     var prevPeriod = 0;
     var nextPeriod = 0;
-    console.log(indices[i]);
     prevPeriod = originalStr.lastIndexOf(".", indices[i]) + 1;
     nextPeriod = originalStr.indexOf(".", indices[i]) + 1;
     periodIndices.push([prevPeriod, nextPeriod]);
-    console.log(periodIndices[i]);
     var sentence = originalStr.substring(prevPeriod, nextPeriod);
     sentence = sentence.trim();
-    console.log(sentence);
     sentences.push(sentence);
   }
+  var prevTable = document.getElementById("sentencesTableID");
+  if (prevTable) prevTable.parentNode.removeChild(prevTable);
   var sentencesTable = document.createElement("table");
+  sentencesTable.setAttribute("id", "sentencesTableID");
+  var sentencesTableHeader = sentencesTable.createTHead();
+  var sentencesTableHeaderRow = sentencesTableHeader.insertRow(0);
+  var sentencesTableHeaderCell1 = sentencesTableHeaderRow.insertCell(0);
+  var sentencesTableHeaderCell2 = sentencesTableHeaderRow.insertCell(1);
+  sentencesTableHeaderCell1.innerHTML =
+    "<b>Sentences Which Include: '" + originalSearchStr + "'</b>";
+  sentencesTableHeaderCell2.innerHTML = "<b>Page #</b>";
   for (var i = 0; i < sentences.length; i++) {
     var tr = document.createElement("tr");
     var td1 = document.createElement("td");
     var td2 = document.createElement("td");
     var sentence = document.createTextNode(sentences[i]);
-    var indexOfSentece = document.createTextNode(indices[i]);
+    var indexOfSentece = document.createTextNode(recordedPages[i]);
     td1.appendChild(sentence);
     td2.appendChild(indexOfSentece);
     tr.appendChild(td1);
