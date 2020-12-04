@@ -1,10 +1,21 @@
+//Global Variables
 var fileSelector;
 var searchInput;
 var searchMessage;
+var sentencesDisplayContainer;
+var finalString = "";
+var pageCounter = 0;
+var pagesPromises = [];
+var numberOfPages = 0;
+var wordCounter = 0;
+
 function searchFunc() {
   fileSelector = document.getElementById("fileSelector");
   searchInput = document.getElementById("wordInput");
   searchMessage = document.getElementById("searchMessage");
+  sentencesDisplayContainer = document.getElementById(
+    "sentencesDisplayContainer"
+  );
   if (fileSelector.value.length != 0 && searchInput.value.length != 0) {
     //check for pdf
     var allowedExtensions = /(\.pdf)$/i;
@@ -41,8 +52,6 @@ function searchFunc() {
   }
 }
 
-var pagesPromises = [];
-var numberOfPages = 0;
 function getPDF() {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "//mozilla.github.io/pdf.js/build/pdf.worker.js";
@@ -76,8 +85,7 @@ function getPDF() {
   };
   fileReader.readAsArrayBuffer(file);
 }
-var finalString = "";
-var pageCounter = 0;
+
 function getPageText(pageNum, PDFDocumentInstance) {
   finalString = "";
   return new Promise(function(resolve, reject) {
@@ -97,7 +105,7 @@ function getPageText(pageNum, PDFDocumentInstance) {
           " of " +
           numberOfPages +
           " total pages";
-        console.log(pageCounter, numberOfPages);
+        //console.log(pageCounter, numberOfPages);
         if (pageCounter == numberOfPages) {
           findWords(finalString);
         }
@@ -105,19 +113,76 @@ function getPageText(pageNum, PDFDocumentInstance) {
     });
   });
 }
-var wordCounter = 0;
+
+var indexArray = [];
 function findWords(finalString) {
   wordCounter = 0;
   pageCounter = 0;
+  var indices = 0;
   var rawWord = searchInput.value;
-  var rawWordLowercase = rawWord.toLowerCase();
-  var lowercaseFinalString = finalString.toLowerCase();
-  var word = new RegExp(rawWordLowercase, "g");
-  wordCounter = (lowercaseFinalString.match(word) || []).length;
+  indices = getIndicesOf(rawWord, finalString, false);
+}
+
+function getIndicesOf(searchStr, str, caseSensitive) {
+  var searchStrLen = searchStr.length;
+  var originalStr = str;
+  var originalSearchStr = searchStr;
+  if (searchStrLen == 0) {
+    return [];
+  }
+  var startIndex = 0,
+    index,
+    indices = [];
+  if (!caseSensitive) {
+    str = str.toLowerCase();
+    searchStr = searchStr.toLowerCase();
+  }
+  while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+    indices.push(index);
+    startIndex = index + searchStrLen;
+    wordCounter += 1;
+  }
+  findSentence(originalStr, indices);
   searchMessage.textContent =
     "The word '" +
-    rawWord +
+    originalSearchStr +
     "' appeared " +
     wordCounter +
-    " number of times in the PDF";
+    " number of times in the PDF ";
+  return indices;
+}
+
+var sentences = [];
+var periodIndices = [];
+function findSentence(originalStr, indices) {
+  sentences = [];
+  periodIndices = [];
+  for (var i = 0; i < indices.length; i++) {
+    var prevPeriod = 0;
+    var nextPeriod = 0;
+    console.log(indices[i]);
+    prevPeriod = originalStr.lastIndexOf(".", indices[i]) + 1;
+    nextPeriod = originalStr.indexOf(".", indices[i]) + 1;
+    periodIndices.push([prevPeriod, nextPeriod]);
+    console.log(periodIndices[i]);
+    var sentence = originalStr.substring(prevPeriod, nextPeriod);
+    sentence = sentence.trim();
+    console.log(sentence);
+    sentences.push(sentence);
+  }
+  var sentencesTable = document.createElement("table");
+  for (var i = 0; i < sentences.length; i++) {
+    var tr = document.createElement("tr");
+    var td1 = document.createElement("td");
+    var td2 = document.createElement("td");
+    var sentence = document.createTextNode(sentences[i]);
+    var indexOfSentece = document.createTextNode(indices[i]);
+    td1.appendChild(sentence);
+    td2.appendChild(indexOfSentece);
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    sentencesTable.appendChild(tr);
+    sentencesTable.setAttribute("border", "2");
+  }
+  sentencesDisplayContainer.appendChild(sentencesTable);
 }

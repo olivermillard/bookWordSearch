@@ -71,3 +71,10 @@ body {
   border: 1px black solid;
   border-radius: 20px;
 }
+.sentenceTableRow td {
+  border: 1px;
+}
+#canvas {
+  width: 200px;
+  height: 200px;
+}

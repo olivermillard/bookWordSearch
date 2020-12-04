@@ -4,8 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>My PDF Viewer</title>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script> -->
+    <title>Book Word Search</title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -19,7 +18,7 @@
           <form id="inputsForm">
             <div class="fileSelectorContainer">
               <label><u>Upload a pdf file</u></label>
-              <input type="file" id="fileSelector" multiple />
+              <input type="file" id="fileSelector" accept=".pdf" multiple />
             </div>
             <br />
             <div class="wordInputContainer">
@@ -31,8 +30,10 @@
             Search the PDF
           </button>
         </div>
-        <div id="searchMessageContainer"><span id="searchMessage"></span></div>
-        <canvas id="canvas"></canvas>
+        <div id="searchMessageContainer">
+          <span id="searchMessage"></span>
+        </div>
+        <div id="sentencesDisplayContainer"></div>
         <!-- <div id="pdf-text">
             <div id="loading-info">
               Extracting text ... hold tight !
