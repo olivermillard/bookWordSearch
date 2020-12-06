@@ -10,10 +10,16 @@ var numberOfPages = 0;
 var wordCounter = 0;
 var indexArray = [];
 var sentences = [];
-var periodIndices = [];
+var startEndIndices = [];
 var recordedPages = [];
 var dividedByPages = [];
 //
+
+var myState = {
+  pdf: null,
+  currentPage: 1,
+  zoom: 1,
+};
 
 function searchFunc() {
   fileSelector = document.getElementById("fileSelector");
@@ -61,7 +67,6 @@ function searchFunc() {
 function getPDF() {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "//mozilla.github.io/pdf.js/build/pdf.worker.js";
-  var canvasElement = document.getElementById("canvas");
   var file = fileSelector.files[0];
   var fileReader = new FileReader();
   fileReader.onload = function() {
@@ -78,22 +83,62 @@ function getPDF() {
             pagesPromises.push(getPageText(pageNumber, pdfDocument));
           })(i + 1);
         }
-        var viewport = page.getViewport(2.0);
-        var canvas = document.querySelector("#canvas");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        page.render({
-          canvasContext: canvas.getContext("2d"),
-          viewport: viewport,
-        });
+        myState.pdf = pdf;
       });
     });
   };
   fileReader.readAsArrayBuffer(file);
 }
+var pdfDoc;
+function render(pageNum) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "//mozilla.github.io/pdf.js/build/pdf.worker.js";
+  var file = fileSelector.files[0];
+  var fileReader = new FileReader();
+  fileReader.onload = function() {
+    var typedarray = new Uint8Array(this.result);
+    var loadingTask = pdfjsLib.getDocument(typedarray);
+    pdfjsLib.getDocument(typedarray);
+    loadingTask.promise.then((pdf) => {
+      pdf.getPage(pageNum).then(function(page) {
+        numberOfPages = pdf.numPages;
+        myState.pdf = pdf;
+        var scale = 1.5;
+        var viewport = page.getViewport({ scale: scale });
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        var renderContext = {
+          canvasContext: context,
+          viewport: viewport,
+        };
+        page.render(renderContext);
+      });
+    });
+  };
+  fileReader.readAsArrayBuffer(file);
+  // var scale = 1.5;
+  // var viewport = page.getViewport({ scale: scale });
+  // // Prepare canvas using PDF page dimensions
+  // var canvas = document.getElementById("canvas");
+  // var context = canvas.getContext("2d");
+  // canvas.height = viewport.height;
+  // canvas.width = viewport.width;
+  // // Render PDF page into canvas context
+  // var renderContext = {
+  //   canvasContext: context,
+  //   viewport: viewport,
+  // };
+  // var renderTask = page.render(renderContext);
+  // renderTask.promise.then(function() {
+  //   console.log("Page rendered");
+  // });
+}
 
 function getPageText(pageNum, PDFDocumentInstance) {
   finalString = "";
+  dividedByPages = [];
   return new Promise(function(resolve, reject) {
     PDFDocumentInstance.getPage(pageNum).then(function(pdfPage) {
       pdfPage.getTextContent().then(function(textContent) {
@@ -182,17 +227,34 @@ function getPages(originalSearchStr, indices) {
 
 function findSentence(originalStr, originalSearchStr, indices) {
   sentences = [];
-  periodIndices = [];
+  startEndIndices = [];
   for (var i = 0; i < indices.length; i++) {
-    var prevPeriod = 0;
-    var nextPeriod = 0;
-    prevPeriod = originalStr.lastIndexOf(".", indices[i]) + 1;
-    nextPeriod = originalStr.indexOf(".", indices[i]) + 1;
-    periodIndices.push([prevPeriod, nextPeriod]);
-    var sentence = originalStr.substring(prevPeriod, nextPeriod);
+    var sentBeg = 0;
+    var sentEnd = 0;
+    var sentBegPeriod = 0;
+    var sentEndPeriod = 0;
+    var sentBegExcl = 0;
+    var sentEndExcl = 0;
+    var sentBegQues = 0;
+    var sentEndQues = 0;
+    sentBegPeriod = originalStr.lastIndexOf(".", indices[i]) + 1;
+    sentBegExcl = originalStr.lastIndexOf("!", indices[i]) + 1;
+    sentBegQues = originalStr.lastIndexOf("?", indices[i]) + 1;
+    sentEndPeriod = originalStr.indexOf(".", indices[i]) + 1;
+    sentEndExcl = originalStr.indexOf("!", indices[i]) + 1;
+    sentEndQues = originalStr.indexOf("?", indices[i]) + 1;
+    sentBeg = Math.max(sentBegPeriod, sentBegExcl, sentBegQues);
+    sentEnd = Math.min(sentEndPeriod, sentEndExcl, sentEndQues);
+    startEndIndices.push([sentBeg, sentEnd]);
+    var sentence = originalStr.substring(sentBeg, sentEnd);
     sentence = sentence.trim();
+    if (sentence.charAt(0) == '" ') {
+      sentence = sentence.substring(1);
+      sentence = sentence.trim();
+    }
     sentences.push(sentence);
   }
+  var prevSentences = [];
   var prevTable = document.getElementById("sentencesTableID");
   if (prevTable) prevTable.parentNode.removeChild(prevTable);
   var sentencesTable = document.createElement("table");
@@ -204,18 +266,46 @@ function findSentence(originalStr, originalSearchStr, indices) {
   sentencesTableHeaderCell1.innerHTML =
     "<b>Sentences Which Include: '" + originalSearchStr + "'</b>";
   sentencesTableHeaderCell2.innerHTML = "<b>Page #</b>";
+  var tableRowsIDs = [];
+  tableRowsIDs = [];
   for (var i = 0; i < sentences.length; i++) {
-    var tr = document.createElement("tr");
-    var td1 = document.createElement("td");
-    var td2 = document.createElement("td");
-    var sentence = document.createTextNode(sentences[i]);
-    var indexOfSentece = document.createTextNode(recordedPages[i]);
-    td1.appendChild(sentence);
-    td2.appendChild(indexOfSentece);
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-    sentencesTable.appendChild(tr);
-    sentencesTable.setAttribute("border", "2");
+    if (!prevSentences.includes(sentences[i])) {
+      var tr = document.createElement("tr");
+      tr.setAttribute("id", "row" + i);
+      tableRowsIDs.push("row" + i);
+      var td1 = document.createElement("td");
+      var td2 = document.createElement("td");
+      var sentence = document.createTextNode(sentences[i]);
+      var indexOfSentece = document.createTextNode(recordedPages[i]);
+      td1.appendChild(sentence);
+      td2.appendChild(indexOfSentece);
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      sentencesTable.appendChild(tr);
+      sentencesTable.setAttribute("border", "2");
+      prevSentences.push(sentences[i]);
+    }
   }
+  render(10);
   sentencesDisplayContainer.appendChild(sentencesTable);
+  addRowHandlers();
+}
+
+function addRowHandlers() {
+  var table = document.getElementById("sentencesTableID");
+  if (table) {
+    var rows = table.getElementsByTagName("tr");
+    for (i = 0; i < rows.length; i++) {
+      var currentRow = table.rows[i];
+      var createClickHandler = function() {
+        return sentenceSelect(i);
+      };
+      currentRow.onclick = createClickHandler(currentRow);
+    }
+  }
+}
+
+function sentenceSelect(indexOfSelected) {
+  console.log(recordedPages[indexOfSelected]);
+  //render(recordedPages[indexOfSelected]);
 }

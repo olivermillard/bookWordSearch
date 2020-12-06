@@ -74,7 +74,24 @@ body {
 .sentenceTableRow td {
   border: 1px;
 }
+#resultsContainer {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 40);
+  padding: 10px;
+  margin: 10px;
+}
+
+#sentencesDisplayContainer {
+  height: 750px;
+  width: 50%;
+  overflow-y: scroll;
+}
 #canvas {
+  height: 750px;
+  overflow-y: scroll;
+}
+/* #canvas {
   width: 200px;
   height: 200px;
-}
+} */
