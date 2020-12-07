@@ -274,7 +274,9 @@ function makeTable() {
   var sentencesTableHeaderCell2 = sentencesTableHeaderRow.insertCell(1);
   sentencesTableHeaderCell1.innerHTML =
     "<b>Sentences Which Include: '" + searchInput.value + "'</b>";
-  sentencesTableHeaderCell2.innerHTML = "<b>Page #</b>";
+  sentencesTableHeaderCell1.className = "tableCell";
+  sentencesTableHeaderCell2.innerHTML = "<b>Page</b>";
+  sentencesTableHeaderCell2.className = "tableCell";
   for (var i = 0; i < sentences.length; i++) {
     if (!prevSentences.includes(sentences[i])) {
       var tr = document.createElement("tr");
@@ -296,7 +298,9 @@ function makeTable() {
       var sentence = document.createTextNode(sentences[i]);
       var indexOfSentece = document.createTextNode(recordedPages[i]);
       td1.appendChild(sentence);
+      td1.className = "tableCell";
       td2.appendChild(indexOfSentece);
+      td2.className = "tableCell";
       tr.appendChild(td1);
       tr.appendChild(td2);
       sentencesTable.appendChild(tr);
