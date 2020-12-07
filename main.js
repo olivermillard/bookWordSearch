@@ -1,8 +1,11 @@
 //Global Variables
-var fileSelector;
-var searchInput;
-var searchMessage;
-var sentencesDisplayContainer;
+var fileSelector = document.getElementById("fileSelector");
+var searchInput = document.getElementById("wordInput");
+var searchMessage = document.getElementById("searchMessage");
+var searchButton = document.getElementById("searchButton");
+var resultsContainer = document.getElementById("resultsContainer");
+var canvasContainer = document.getElementById("canvasContainer");
+var results;
 var finalString = "";
 var pageCounter = 0;
 var pagesPromises = [];
@@ -13,6 +16,10 @@ var sentences = [];
 var startEndIndices = [];
 var recordedPages = [];
 var dividedByPages = [];
+var pdfDoc;
+var prevSentences = [];
+var alreadyUploaded = false;
+
 //
 
 var myState = {
@@ -22,12 +29,7 @@ var myState = {
 };
 
 function searchFunc() {
-  fileSelector = document.getElementById("fileSelector");
-  searchInput = document.getElementById("wordInput");
-  searchMessage = document.getElementById("searchMessage");
-  sentencesDisplayContainer = document.getElementById(
-    "sentencesDisplayContainer"
-  );
+  searchButton.disabled = true;
   if (fileSelector.value.length != 0 && searchInput.value.length != 0) {
     //check for pdf
     var allowedExtensions = /(\.pdf)$/i;
@@ -35,11 +37,19 @@ function searchFunc() {
     if (!allowedExtensions.exec(fileSelector.value)) {
       alert("Invalid File Type: Uploaded File must be a PDF");
       fileSelector.value = "";
+      searchButton.disabled = false;
       return false;
     }
     //if pdf
     else {
-      getPDF();
+      if (alreadyUploaded == false) {
+        getPDF();
+      } else {
+        searchMessage.textContent =
+          "Searching for '" + searchInput.value + "'...";
+        getIndicesOf(searchInput.value, finalString, false);
+        // getPDF();
+      }
     }
   }
   // accounts for no inputs
@@ -75,9 +85,9 @@ function getPDF() {
     pdfjsLib.getDocument(typedarray);
     loadingTask.promise.then((pdf) => {
       console.log("the pdf has ", pdf.numPages, "page(s).");
+      numberOfPages = pdf.numPages;
       var pdfDocument = pdf;
       pdf.getPage(pdf.numPages).then(function(page) {
-        numberOfPages = pdf.numPages;
         for (var i = 0; i < pdf.numPages; i++) {
           (function(pageNumber) {
             pagesPromises.push(getPageText(pageNumber, pdfDocument));
@@ -88,9 +98,17 @@ function getPDF() {
     });
   };
   fileReader.readAsArrayBuffer(file);
+  alreadyUploaded = true;
 }
-var pdfDoc;
+
 function render(pageNum) {
+  var prevCanvas = document.getElementById("canvas");
+  if (prevCanvas != null) {
+    canvasContainer.removeChild(prevCanvas);
+  }
+  var loader = document.createElement("div");
+  loader.setAttribute("id", "loaderID");
+  canvasContainer.appendChild(loader);
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "//mozilla.github.io/pdf.js/build/pdf.worker.js";
   var file = fileSelector.files[0];
@@ -105,7 +123,10 @@ function render(pageNum) {
         myState.pdf = pdf;
         var scale = 1.5;
         var viewport = page.getViewport({ scale: scale });
-        var canvas = document.getElementById("canvas");
+        canvasContainer.removeChild(loader);
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("id", "canvas");
+        canvasContainer.appendChild(canvas);
         var context = canvas.getContext("2d");
         canvas.height = viewport.height;
         canvas.width = viewport.width;
@@ -118,27 +139,12 @@ function render(pageNum) {
     });
   };
   fileReader.readAsArrayBuffer(file);
-  // var scale = 1.5;
-  // var viewport = page.getViewport({ scale: scale });
-  // // Prepare canvas using PDF page dimensions
-  // var canvas = document.getElementById("canvas");
-  // var context = canvas.getContext("2d");
-  // canvas.height = viewport.height;
-  // canvas.width = viewport.width;
-  // // Render PDF page into canvas context
-  // var renderContext = {
-  //   canvasContext: context,
-  //   viewport: viewport,
-  // };
-  // var renderTask = page.render(renderContext);
-  // renderTask.promise.then(function() {
-  //   console.log("Page rendered");
-  // });
 }
 
 function getPageText(pageNum, PDFDocumentInstance) {
   finalString = "";
   dividedByPages = [];
+  pageCounter = 0;
   return new Promise(function(resolve, reject) {
     PDFDocumentInstance.getPage(pageNum).then(function(pdfPage) {
       pdfPage.getTextContent().then(function(textContent) {
@@ -161,24 +167,18 @@ function getPageText(pageNum, PDFDocumentInstance) {
           " total pages";
         //console.log(pageCounter, numberOfPages);
         if (pageCounter == numberOfPages) {
-          findWords(finalString);
+          //findWords(finalString);
+          getIndicesOf(searchInput.value, finalString, false);
         }
       });
     });
   });
 }
 
-function findWords(finalString) {
-  wordCounter = 0;
-  pageCounter = 0;
-  var indices = 0;
-  var rawWord = searchInput.value;
-  indices = getIndicesOf(rawWord, finalString, false);
-}
-
 function getIndicesOf(searchStr, str, caseSensitive) {
   var searchStrLen = searchStr.length;
   var originalStr = str;
+  wordCounter = 0;
   var originalSearchStr = searchStr;
   if (searchStrLen == 0) {
     return [];
@@ -222,7 +222,6 @@ function getPages(originalSearchStr, indices) {
       recordedPages.push(i);
     }
   }
-  console.log(recordedPages.length);
 }
 
 function findSentence(originalStr, originalSearchStr, indices) {
@@ -252,11 +251,21 @@ function findSentence(originalStr, originalSearchStr, indices) {
       sentence = sentence.substring(1);
       sentence = sentence.trim();
     }
-    sentences.push(sentence);
+    if (!prevSentences.includes(sentences[i])) {
+      sentences.push(sentence);
+    } else {
+      recordedPages.splice(i);
+    }
   }
-  var prevSentences = [];
-  var prevTable = document.getElementById("sentencesTableID");
-  if (prevTable) prevTable.parentNode.removeChild(prevTable);
+  makeTable();
+}
+
+function makeTable() {
+  prevSentences = [];
+  var prevTableContainer = document.getElementById("sentencesDisplayContainer");
+  resultsContainer.removeChild(prevTableContainer);
+  var sentencesDisplayContainer = document.createElement("div");
+  sentencesDisplayContainer.setAttribute("id", "sentencesDisplayContainer");
   var sentencesTable = document.createElement("table");
   sentencesTable.setAttribute("id", "sentencesTableID");
   var sentencesTableHeader = sentencesTable.createTHead();
@@ -264,15 +273,24 @@ function findSentence(originalStr, originalSearchStr, indices) {
   var sentencesTableHeaderCell1 = sentencesTableHeaderRow.insertCell(0);
   var sentencesTableHeaderCell2 = sentencesTableHeaderRow.insertCell(1);
   sentencesTableHeaderCell1.innerHTML =
-    "<b>Sentences Which Include: '" + originalSearchStr + "'</b>";
+    "<b>Sentences Which Include: '" + searchInput.value + "'</b>";
   sentencesTableHeaderCell2.innerHTML = "<b>Page #</b>";
-  var tableRowsIDs = [];
-  tableRowsIDs = [];
   for (var i = 0; i < sentences.length; i++) {
     if (!prevSentences.includes(sentences[i])) {
       var tr = document.createElement("tr");
       tr.setAttribute("id", "row" + i);
-      tableRowsIDs.push("row" + i);
+      tr.className = "tableRow";
+      tr.addEventListener("click", function() {
+        var pageToShow = 0;
+        pageToShow = recordedPages[this.rowIndex];
+        console.log(pageToShow - 1);
+        if (pageToShow == 0) {
+          console.log(numberOfPages - 1);
+          render(numberOfPages);
+        } else {
+          render(recordedPages[this.rowIndex - 1]);
+        }
+      });
       var td1 = document.createElement("td");
       var td2 = document.createElement("td");
       var sentence = document.createTextNode(sentences[i]);
@@ -286,26 +304,12 @@ function findSentence(originalStr, originalSearchStr, indices) {
       prevSentences.push(sentences[i]);
     }
   }
-  render(10);
   sentencesDisplayContainer.appendChild(sentencesTable);
-  addRowHandlers();
+  resultsContainer.appendChild(sentencesDisplayContainer);
+  render(1);
+  searchButton.disabled = false;
 }
 
-function addRowHandlers() {
-  var table = document.getElementById("sentencesTableID");
-  if (table) {
-    var rows = table.getElementsByTagName("tr");
-    for (i = 0; i < rows.length; i++) {
-      var currentRow = table.rows[i];
-      var createClickHandler = function() {
-        return sentenceSelect(i);
-      };
-      currentRow.onclick = createClickHandler(currentRow);
-    }
-  }
-}
-
-function sentenceSelect(indexOfSelected) {
-  console.log(recordedPages[indexOfSelected]);
-  //render(recordedPages[indexOfSelected]);
+function newPDF() {
+  alreadyUploaded = false;
 }
