@@ -5,6 +5,7 @@ var searchMessage = document.getElementById("searchMessage");
 var searchButton = document.getElementById("searchButton");
 var resultsContainer = document.getElementById("resultsContainer");
 var canvasContainer = document.getElementById("canvasContainer");
+
 var results;
 var finalString = "";
 var pageCounter = 0;
@@ -106,6 +107,10 @@ function render(pageNum) {
   if (prevCanvas != null) {
     canvasContainer.removeChild(prevCanvas);
   }
+  var prevLoader = document.getElementById("loaderID");
+  if (prevLoader != null) {
+    canvasContainer.removeChild(prevLoader);
+  }
   var loader = document.createElement("div");
   loader.setAttribute("id", "loaderID");
   canvasContainer.appendChild(loader);
@@ -156,18 +161,15 @@ function getPageText(pageNum, PDFDocumentInstance) {
           pageText += item.str + " ";
         }
         dividedByPages.push(pageText);
-        //pdf.getPage(pdf.numPages).then(function(page)
-        resolve(finalString);
         pageCounter += 1;
+        resolve(finalString);
         searchMessage.textContent =
           "Processing page number " +
           pageCounter +
           " of " +
           numberOfPages +
           " total pages";
-        //console.log(pageCounter, numberOfPages);
         if (pageCounter == numberOfPages) {
-          //findWords(finalString);
           getIndicesOf(searchInput.value, finalString, false);
         }
       });
@@ -196,7 +198,7 @@ function getIndicesOf(searchStr, str, caseSensitive) {
     wordCounter += 1;
   }
   getPages(originalSearchStr, indices);
-  findSentence(originalStr, originalSearchStr, indices);
+  findSentence(originalStr, indices);
   searchMessage.textContent =
     "The word '" +
     originalSearchStr +
@@ -224,7 +226,7 @@ function getPages(originalSearchStr, indices) {
   }
 }
 
-function findSentence(originalStr, originalSearchStr, indices) {
+function findSentence(originalStr, indices) {
   sentences = [];
   startEndIndices = [];
   for (var i = 0; i < indices.length; i++) {
@@ -261,6 +263,11 @@ function findSentence(originalStr, originalSearchStr, indices) {
 }
 
 function makeTable() {
+  var offsetInput = document.getElementById("offsetInput");
+  var offset = 0;
+  if (offsetInput) {
+    offset = offsetInput.value;
+  }
   prevSentences = [];
   var prevTableContainer = document.getElementById("sentencesDisplayContainer");
   resultsContainer.removeChild(prevTableContainer);
@@ -277,6 +284,7 @@ function makeTable() {
   sentencesTableHeaderCell1.className = "tableCell";
   sentencesTableHeaderCell2.innerHTML = "<b>Page</b>";
   sentencesTableHeaderCell2.className = "tableCell";
+
   for (var i = 0; i < sentences.length; i++) {
     if (!prevSentences.includes(sentences[i])) {
       var tr = document.createElement("tr");
@@ -284,24 +292,30 @@ function makeTable() {
       tr.className = "tableRow";
       tr.addEventListener("click", function() {
         var pageToShow = 0;
-        pageToShow = recordedPages[this.rowIndex];
-        console.log(pageToShow - 1);
+        pageToShow = recordedPages[this.rowIndex - 1] + 1;
         if (pageToShow == 0) {
-          console.log(numberOfPages - 1);
-          render(numberOfPages);
+          pageToShow = numberOfPages;
+          render(pageToShow);
         } else {
-          render(recordedPages[this.rowIndex - 1]);
+          render(pageToShow);
         }
       });
       var td1 = document.createElement("td");
-      var td2 = document.createElement("td");
       var sentence = document.createTextNode(sentences[i]);
-      var indexOfSentece = document.createTextNode(recordedPages[i]);
-      td1.appendChild(sentence);
       td1.className = "tableCell";
+      td1.appendChild(sentence);
+      tr.appendChild(td1);
+      var td2 = document.createElement("td");
+      var td2Content = "";
+      if (recordedPages[i] != 0) {
+        td2Content = recordedPages[i] - offset;
+      } else {
+        td2Content = numberOfPages - offset;
+      }
+      var indexOfSentece = document.createTextNode(td2Content);
       td2.appendChild(indexOfSentece);
       td2.className = "tableCell";
-      tr.appendChild(td1);
+
       tr.appendChild(td2);
       sentencesTable.appendChild(tr);
       sentencesTable.setAttribute("border", "2");

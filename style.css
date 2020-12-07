@@ -33,6 +33,7 @@ body {
   justify-content: center;
   margin: 10px 10px 10px 10px;
 }
+
 #inputsForm {
   display: flex;
   flex-direction: row;
@@ -73,6 +74,22 @@ body {
   border: 1px black solid;
   border-radius: 20px;
 }
+.pageOffsetContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+  justify-content: center;
+  height: 75px;
+}
+#offsetInput {
+  margin: 5px;
+  padding: 10px;
+  margin: 5px;
+  border: 1px black solid;
+  border-radius: 20px;
+}
+
 #searchButton {
   margin-top: 10px;
 }
@@ -102,8 +119,9 @@ body {
   overflow-y: scroll;
 }
 #sentencesTableID {
-  left: 0;
-  right: 0;
+  /* left: 0;
+  right: 0; */
+  width: 100%;
 }
 table tr:hover td {
   background-color: yellow;
